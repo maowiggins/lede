@@ -52,13 +52,50 @@ jobs:
 
       - name: Update feeds
         run: |
+          echo 'src-git helloworld https://github.com/fw876/helloworld' >> ./feeds.conf.default
           sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Generate configuration file
-        run: make defconfig
-
+        run: |
+          rm -f ./.config*
+          touch ./.config
+          cat >> .config <<EOF
+          CONFIG_TARGET_mediatek=y
+          CONFIG_TARGET_mediatek_mt7622=y
+          CONFIG_TARGET_mediatek_mt7622_DEVICE_xiaomi_redmi-router-ax6s=y
+          CONFIG_PACKAGE_boost=y
+          CONFIG_PACKAGE_boost-date_time=y
+          CONFIG_PACKAGE_boost-program_options=y
+          CONFIG_PACKAGE_boost-system=y
+          CONFIG_PACKAGE_ipt2socks=y
+          CONFIG_PACKAGE_libiconv-full=m
+          CONFIG_PACKAGE_libncurses=m
+          CONFIG_PACKAGE_libreadline=m
+          CONFIG_PACKAGE_libstdcpp=y
+          CONFIG_PACKAGE_luci-app-openvpn=m
+          CONFIG_PACKAGE_luci-app-shadowsocks-libev=m
+          CONFIG_PACKAGE_luci-app-softethervpn=m
+          CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_IPT2Socks=y
+          CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Trojan=y
+          CONFIG_PACKAGE_luci-i18n-openvpn-zh-cn=m
+          CONFIG_PACKAGE_luci-i18n-softethervpn-zh-cn=m
+          CONFIG_PACKAGE_luci-theme-argon=m
+          CONFIG_PACKAGE_softethervpn5-bridge=m
+          CONFIG_PACKAGE_softethervpn5-client=m
+          CONFIG_PACKAGE_softethervpn5-libs=m
+          CONFIG_PACKAGE_softethervpn5-server=m
+          CONFIG_PACKAGE_terminfo=m
+          CONFIG_PACKAGE_trojan=y
+          CONFIG_boost-compile-visibility-hidden=y
+          CONFIG_boost-runtime-shared=y
+          CONFIG_boost-static-and-shared-libs=y
+          CONFIG_boost-variant-release=y
+          EOF
+          sed -i 's/^[ \t]*//g' ./.config
+          make defconfig
+          
       - name: Make download
         run: |
           make download -j8
